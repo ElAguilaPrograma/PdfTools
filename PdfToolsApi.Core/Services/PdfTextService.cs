@@ -1,0 +1,60 @@
+﻿using PdfSharp.Drawing;
+using PdfSharp.Pdf;
+using PdfSharp.Pdf.IO;
+
+namespace PdfToolsApi.Core.Services
+{
+    public interface IPdfTextService
+    {
+        byte[] AddPageNumbers(Stream file, string format = "Pagina {0} de {1}");
+    }
+
+    public class PdfTextService : IPdfTextService
+    {
+        private readonly InterfaceIsPdf _validatePdf;
+        public PdfTextService(InterfaceIsPdf interfaceIsPdf)
+        {
+            _validatePdf = interfaceIsPdf;
+        }
+
+        // Agregar numero de pagina al pdf.
+        public byte[] AddPageNumbers(Stream file, string format = "Pagina {0} de {1}")
+        {
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("No se proporcionó el archivo PDF");
+
+            if (!_validatePdf.ValidatePdf(file))
+                throw new InvalidDataException("Uno de los archivos no es un PDF valido");
+
+            using var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify);
+            int totalPages = document.PageCount;
+
+            try
+            {
+                for (int i = 0; i < totalPages; i++)
+                {
+                    var page = document.Pages[i];
+                    using var gfx = XGraphics.FromPdfPage(page);
+
+                    var font = new XFont("Roboto", 10);
+                    var text = string.Format(format, i + 1, totalPages);
+                    var size = gfx.MeasureString(text, font);
+
+                    // Posición
+                    double x = (page.Width - size.Width);
+                    double y = page.Height - 30;
+
+                    gfx.DrawString(text, font, XBrushes.Black, new XPoint(x, y));
+                }
+            }
+            catch (PdfReaderException)
+            {
+                throw new InvalidDataException("El archivo PDf esta dañado o corrupto.");
+            }
+
+            using var stream = new MemoryStream();
+            document.Save(stream, false);
+            return stream.ToArray();
+        }
+    }
+}

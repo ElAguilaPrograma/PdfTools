@@ -1,0 +1,80 @@
+<div class="w-full p-6 flex h-full">
+
+    <!-- Dialog an toast from confirm remove pdf -->
+    <p-toast position="bottom-left"/>
+    <p-confirmdialog />
+
+    <p-button label="Volver" icon="pi pi-arrow-left" class="fixed" routerLink="/home" routerLinkActive="active"></p-button>
+    <div class="flex flex-col justify-center items-center space-y-9 w-full">
+        <h1 class="text-8xl text-shadow-lg/20"> {{ toolName }}</h1>
+        <h4 class="text-4xl text-shadow-md"> Selecciona tus archivos PDFs para comenzar </h4>
+
+        @if (toolId === 4){
+            <input #imageInput
+                type="file"
+                accept="image/*"
+                multiple
+                (change)="onImageSelected($event)"
+                hidden />
+
+            <p-button label="Subir Imágenes" 
+                size="large" 
+                icon="pi pi-upload"
+                (onClick)="imageInput.click()" />
+        }
+        @else {
+            <input #fileInput
+                type="file"
+                accept="application/pdf"
+                [multiple]="toolId === 0"
+                (change)="onFileSelected($event)"
+                hidden />
+
+            <p-button label="Subir Archivos" 
+                size="large" 
+                icon="pi pi-upload"
+                (onClick)="fileInput.click()" />
+        }
+
+    </div>
+</div>
+
+<!-- Modal Window -->
+<app-modal-windows 
+    [(visible)]="visible"
+    header="{{ toolName }}"
+    [multipleFiles]="toolId === 0"
+    [canOrder]="toolId === 0"
+    [(isOrdering)]="isOrdering"
+    size="large"
+    [pdfs]="pdfs"
+    [toolId]="toolId"
+    >
+    
+    <!-- YISUS DEL FUTURO LA ORIENTACIÓ0N ES MIXED -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6" 
+        cdkDropList 
+        cdkDropListOrientation="mixed" 
+        (cdkDropListDropped)="drop($event)">
+
+        @for (pdf of pdfs; track i; let i = $index) {
+            <div cdkDrag [cdkDragDisabled]="!isOrdering">
+                <p-card class="brightness-100 
+                    hover:brightness-85 
+                    transition-all 
+                    shadow-lg/30"
+                    (click)="removeSelectedPdf(i)"
+                    [pTooltip]="isOrdering ? 'Drag to order' : 'Click to remove'"
+                    tooltipPosition="top">
+
+                    <img [src]="pdf.thumbnail"/>
+                    <p class="text-center truncate mt-2 px-2">{{ pdf.file.name }}</p>
+                </p-card>
+            </div>
+        }
+    </div>
+
+</app-modal-windows>
+
+
+
