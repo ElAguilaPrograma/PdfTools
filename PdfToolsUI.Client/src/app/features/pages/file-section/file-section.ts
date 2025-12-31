@@ -15,6 +15,9 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 import { ModalWindows } from '../../../shared/components/modal-windows/modal-windows';
 import { ProcessPdfFilesService } from '../../../services/processPdfFiles.service';
 import { LoadingService } from '../../../services/loading.service';
+import { InputNumber } from "primeng/inputnumber";
+import { FormsModule } from '@angular/forms';
+import { IPdf } from '../../../api/services/models/pdf';
 
 @Component({
   selector: 'app-file-section',
@@ -30,7 +33,9 @@ import { LoadingService } from '../../../services/loading.service';
     ConfirmDialogModule,
     TooltipModule,
     DragDropModule,
-    ModalWindows
+    ModalWindows,
+    InputNumber,
+    FormsModule
   ],
   templateUrl: './file-section.html',
   styleUrl: './file-section.css',
@@ -41,7 +46,11 @@ export class FileSection implements OnInit {
   toolName: any;
   visible: boolean = false;
   pdfs: IPdfItem[] = [];
+  pdf: IPdf | undefined;
+  pagesToDelete: number[] = [];
   isOrdering: boolean = false;
+  startPage: number = 1;
+  endPage: number = 1;
 
   constructor(
     private router: ActivatedRoute,
@@ -63,12 +72,31 @@ export class FileSection implements OnInit {
 
   async onFileSelected(event: Event) {
     this.loadingService.show();
-    await this.processPdfFilesService.onFileSelected(event, this.pdfs);
+    if (this.toolId !== 2) {
+      await this.processPdfFilesService.onFileSelected(event, this.pdfs);
+    }
+    else {
+      this.pdf = await this.processPdfFilesService.onPdfSelected(event);
+    }
+
     this.openModalWindow();
     this.loadingService.hide();
   }
 
+  addPageToDeleteList(index: number): void {
+    if (this.pagesToDelete.includes(index)) {
+      this.pagesToDelete.splice(this.pagesToDelete.indexOf(index), 1);
+    }
+    else {
+      this.pagesToDelete.push(index);
+    }
+    console.log(this.pagesToDelete);
+  }
+
   removeSelectedPdf(index: number): void {
+    if (this.toolId === 1 ) {
+      return;
+    }
     if (!this.isOrdering) {
       this.processPdfFilesService.removeSelectedPdf(index, this.isOrdering, this.pdfs);
       this.messageService.add({

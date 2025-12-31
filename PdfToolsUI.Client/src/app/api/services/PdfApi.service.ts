@@ -26,4 +26,24 @@ export class PdfApiService {
             }
         );
     }
+
+    splitPdfFile(formData: FormData) {
+        return this.http.post(
+            `${this.apiUrl}/split`,
+            formData,
+            {
+                responseType: "blob"
+            }
+        );
+    }
+
+    deletePdfPages(formData: FormData) {
+        return this.http.post(
+            `${this.apiUrl}/delete`,
+            formData,
+            {
+                responseType: "blob"
+            }
+        )
+    }
 }
