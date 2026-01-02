@@ -120,4 +120,10 @@ export class ProcessPdfFilesService {
             pdfs.splice(index, 1);
         }
     }
+
+    async enumPdfPages(file: File): Promise<void> {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = this.pdfService.loadPdf(arrayBuffer);
+    }
+
 }

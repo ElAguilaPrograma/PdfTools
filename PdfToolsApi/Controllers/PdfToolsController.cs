@@ -66,7 +66,7 @@ namespace PdfToolsApi.Controllers
         public IActionResult TextPdf([FromForm] TextPdfRequest request)
         {
             using var stream = request.File.OpenReadStream();
-            var result = _textService.AddPageNumbers(stream);
+            var result = _textService.AddPageNumbers(stream, request.StartPage);
 
             return File(result, "application/pdf", "text.pdf");
         }

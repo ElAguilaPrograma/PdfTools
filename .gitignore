@@ -476,4 +476,5 @@ obj/
 
 # Enviroment
 /environments
-/.vscode
+/.vscode/
+.vscode/

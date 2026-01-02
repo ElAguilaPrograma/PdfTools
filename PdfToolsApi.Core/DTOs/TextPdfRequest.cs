@@ -10,5 +10,6 @@ namespace PdfToolsApi.Core.DTOs
     public class TextPdfRequest
     {
         public IFormFile File { get; set; } = default!;
+        public int StartPage { get; set; }
     }
 }

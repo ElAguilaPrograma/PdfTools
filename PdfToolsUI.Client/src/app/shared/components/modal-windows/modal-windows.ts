@@ -9,6 +9,8 @@ import { PdfApiService } from '../../../api/services/PdfApi.service';
 import { LoadingService } from '../../../services/loading.service';
 import { FormsModule } from '@angular/forms';
 import { IPdf } from '../../../api/services/models/pdf';
+import { IImageItem } from '../../../api/services/models/imageItem';
+import { ProcessImageFilesService } from '../../../services/precessImagesFiles.service';
 
 @Component({
   selector: 'app-modal-windows',
@@ -23,7 +25,7 @@ export class ModalWindows {
   @Input() toolId: number = 0;
   @Input() multipleFiles: boolean = false;
   @Input() canOrder: boolean = false;
-  @Input() size: 'small' | 'large' = 'large';
+  @Input() size: 'small' | 'large' | 'pdf' = 'large';
   @Input() pdfs: IPdfItem[] = [];
   @Input() isOrdering: boolean = false;
   @Output() isOrderingChange = new EventEmitter<boolean>();
@@ -32,12 +34,14 @@ export class ModalWindows {
   @Input() pagesToDelete: number[] = [];
   @Input() pdf: IPdf | undefined;
   @Output() pdfChange = new EventEmitter<IPdf | undefined>();
+  @Input() images: IImageItem[] = [];
 
   constructor(private confirmationService: ConfirmationService,
     private messageService: MessageService,
     private processPdfFilesService: ProcessPdfFilesService,
     private pdfApiService: PdfApiService,
-    private loadingService: LoadingService) { }
+    private loadingService: LoadingService,
+    private processImageFilesService: ProcessImageFilesService) { }
 
   updateVisibleValue(visible: boolean): void {
     this.visible = visible;
@@ -64,6 +68,12 @@ export class ModalWindows {
     this.loadingService.hide();
   }
 
+  async onImageSelected(event: Event) {
+    this.loadingService.show();
+    await this.processImageFilesService.onImageSelected(event, this.images);
+    this.loadingService.hide();
+  }
+
   closeModalWindow(event: Event): void {
     if (this.pdfs.length !== 0 || this.pdf) {
       this.confirmationService.confirm({
@@ -83,7 +93,7 @@ export class ModalWindows {
 
         accept: () => {
           this.messageService.add({
-            severity: 'info', summary: 'Confirmed', detail: 'PDFs deleted'
+            severity: 'info', summary: 'Canceled', detail: 'PDFs deleted'
           });
 
           this.pdfs.length = 0;
@@ -222,7 +232,37 @@ export class ModalWindows {
         });
         break;
       case 3:
+        if (this.startPage > 0) this.startPage -= 1;
+        if (this.pdfs.length > 0) {
+          formData.append('File', this.pdfs[0].file, this.pdfs[0].file.name);
+          console.log(this.startPage);
+        }
+        formData.append('StartPage', this.startPage.toString());
+        this.pdfApiService.enumeratePdfPage(formData).subscribe({
+          next: (blob: Blob) => {
+            this.openPdf(blob, this.pdfs[0].file.name + " [enumeratedPages]");
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Listo',
+              detail: 'PDF generated successfully'
+            });
 
+            this.pdfs.length = 0;
+            this.visible = false;
+          },
+          error: (err) => {
+            console.error(err);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Error procesing PDFs'
+            });
+            this.loadingService.hide();
+          },
+          complete: () => {
+            this.loadingService.hide();
+          }
+        })
         break;
     }
 

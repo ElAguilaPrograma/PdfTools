@@ -6,7 +6,7 @@ namespace PdfToolsApi.Core.Services
 {
     public interface IPdfTextService
     {
-        byte[] AddPageNumbers(Stream file, string format = "Pagina {0} de {1}");
+        byte[] AddPageNumbers(Stream file, int startPage,string format = "{0} | {1}");
     }
 
     public class PdfTextService : IPdfTextService
@@ -18,7 +18,7 @@ namespace PdfToolsApi.Core.Services
         }
 
         // Agregar numero de pagina al pdf.
-        public byte[] AddPageNumbers(Stream file, string format = "Pagina {0} de {1}")
+        public byte[] AddPageNumbers(Stream file, int startPage, string format = "{0} | {1}")
         {
             if (file == null || file.Length == 0)
                 throw new ArgumentException("No se proporcionó el archivo PDF");
@@ -29,20 +29,23 @@ namespace PdfToolsApi.Core.Services
             using var document = PdfReader.Open(file, PdfDocumentOpenMode.Modify);
             int totalPages = document.PageCount;
 
+            if (startPage < 0 || startPage > totalPages)
+                throw new ArgumentException("La pagina de inicio debe ser mayor a 0 y inferior al numero paginas");
+
             try
             {
-                for (int i = 0; i < totalPages; i++)
+                for (int i = startPage; i < totalPages; i++)
                 {
                     var page = document.Pages[i];
                     using var gfx = XGraphics.FromPdfPage(page);
 
-                    var font = new XFont("Roboto", 10);
+                    var font = new XFont("Roboto", 16);
                     var text = string.Format(format, i + 1, totalPages);
                     var size = gfx.MeasureString(text, font);
 
                     // Posición
-                    double x = (page.Width - size.Width);
-                    double y = page.Height - 30;
+                    double x = (page.Width - size.Width - 35);
+                    double y = page.Height - 35;
 
                     gfx.DrawString(text, font, XBrushes.Black, new XPoint(x, y));
                 }

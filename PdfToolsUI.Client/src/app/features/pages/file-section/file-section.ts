@@ -18,6 +18,9 @@ import { LoadingService } from '../../../services/loading.service';
 import { InputNumber } from "primeng/inputnumber";
 import { FormsModule } from '@angular/forms';
 import { IPdf } from '../../../api/services/models/pdf';
+import { PdfService } from '../../../services/pdf.service';
+import { ProcessImageFilesService } from '../../../services/precessImagesFiles.service';
+import { IImageItem } from '../../../api/services/models/imageItem';
 
 @Component({
   selector: 'app-file-section',
@@ -47,16 +50,23 @@ export class FileSection implements OnInit {
   visible: boolean = false;
   pdfs: IPdfItem[] = [];
   pdf: IPdf | undefined;
+  images: IImageItem[] = [];
   pagesToDelete: number[] = [];
   isOrdering: boolean = false;
-  startPage: number = 1;
+  startPage: number = 0;
   endPage: number = 1;
+  isExpandingPdf: boolean = false;
+  pdfExpandedName: string = "";
+  expandedPdfPages: string[] = [];
+
 
   constructor(
     private router: ActivatedRoute,
     private messageService: MessageService,
     private processPdfFilesService: ProcessPdfFilesService,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private pdfService: PdfService,
+    private processImagesFilesService: ProcessImageFilesService
   ) { }
 
   @ViewChild('pdfCanvas', { static: true })
@@ -94,7 +104,7 @@ export class FileSection implements OnInit {
   }
 
   removeSelectedPdf(index: number): void {
-    if (this.toolId === 1 ) {
+    if (this.toolId === 1) {
       return;
     }
     if (!this.isOrdering) {
@@ -108,39 +118,80 @@ export class FileSection implements OnInit {
     }
   }
 
-  onImageSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
+  async onImageSelected(event: Event) {
+    this.loadingService.show();
+    await this.processImagesFilesService.onImageSelected(event, this.images);
+    this.loadingService.hide();
+    this.openModalWindow();
+  }
 
-    this.processImages(Array.from(input.files));
-
-    // Clear value to allow selecting the same images again
-    try {
-      input.value = '';
-    } catch (e) {
-      // ignore
+  removeSelectedImage(index: number) {
+    if (!this.isOrdering) {
+      this.processPdfFilesService.removeSelectedPdf(index, this.isOrdering, this.images);
+      this.messageService.add({
+        severity: 'secondary',
+        summary: 'Deleted',
+        detail: 'Image successfully deleted',
+        life: 1000
+      })
     }
   }
 
-  processImages(files: File[]) {
-    const validImages = files.filter(file =>
-      file.type.startsWith('image/')
-    );
+  drop(event: CdkDragDrop<IPdfItem[]>) {
+    moveItemInArray(this.pdfs, event.previousIndex, event.currentIndex);
+  }
 
-    if (validImages.length !== files.length) {
-      alert('Solo se permiten imágenes');
-    }
-
-    console.log(validImages);
-    this.openModalWindow();
+  dropImage(event: CdkDragDrop<IImageItem[]>) {
+    moveItemInArray(this.images, event.previousIndex, event.currentIndex);
   }
 
   openModalWindow(): void {
     this.visible = true;
   }
 
-  drop(event: CdkDragDrop<IPdfItem[]>) {
-    moveItemInArray(this.pdfs, event.previousIndex, event.currentIndex);
+  openModalWindowExpandPdf(): void {
+    this.isExpandingPdf = true;
+  }
+
+  // View PDF pages as thumbnails
+  async expandPdf(file: File, name: string) {
+    this.loadingService.show();
+    this.pdfExpandedName = name;
+    this.expandedPdfPages = [];
+
+    setTimeout(async () => {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await this.pdfService.loadPdf(arrayBuffer);
+
+        const pages = await Promise.all(
+          Array.from({ length: pdf.numPages }).map(async (_, i) => {
+            const page = await pdf.getPage(i + 1);
+            const viewport = page.getViewport({ scale: 1.5 });
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d')!;
+
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            await page.render({
+              canvasContext: ctx,
+              viewport,
+              canvas
+            }).promise;
+
+            return canvas.toDataURL('image/png');
+          })
+        );
+
+        this.expandedPdfPages = pages;
+        this.isExpandingPdf = true;
+        this.loadingService.hide();
+      } catch (error) {
+        console.error('Error rendering PDF:', error);
+        this.loadingService.hide();
+      }
+    }, 100);
   }
 
 }

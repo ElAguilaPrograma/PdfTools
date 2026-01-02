@@ -44,6 +44,16 @@ export class PdfApiService {
             {
                 responseType: "blob"
             }
-        )
+        );
+    }
+
+    enumeratePdfPage(formData: FormData) {
+        return this.http.post(
+            `${this.apiUrl}/text`,
+            formData,
+            {
+                responseType: "blob"
+            }
+        );
     }
 }
