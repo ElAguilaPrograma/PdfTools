@@ -474,4 +474,6 @@ obj/
 *.log
 *.tmp
 
-
+# Enviroment
+/environments
+/.vscode
