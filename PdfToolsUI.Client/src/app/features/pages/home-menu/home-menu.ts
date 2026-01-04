@@ -4,13 +4,12 @@ import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { PdfApiService } from '../../../api/services/PdfApi.service';
 import { ITools } from '../../../api/services/models/tools';
-import { ModalWindows } from '../../../shared/components/modal-windows/modal-windows';
-import { routes } from '../../../app.routes';
-import { Route, Router } from '@angular/router';
+import { Router } from '@angular/router';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-home-menu',
-  imports: [CardModule, ButtonModule, CommonModule],
+  imports: [CardModule, ButtonModule, CommonModule, Tooltip],
   templateUrl: './home-menu.html',
   styleUrl: './home-menu.css',
 })

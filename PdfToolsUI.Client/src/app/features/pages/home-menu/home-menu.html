@@ -15,7 +15,11 @@
                     <p-card header="{{ tools.name }}"
                         class="text-center p-4 h-full">
                         <div class="flex flex-col space-y-12">
-                            <p>{{ tools.description }}</p>
+                            <p class="truncate" 
+                                pTooltip="{{ tools.description }}"
+                                tooltipPosition="top"
+                                showDelay="800"
+                                hideDelay="200">{{ tools.description }}</p>
                             <p-button label="Ir" 
                                 (click)="navigateToFileSection(tools.toolId, tools.name)"
                                 icon="pi pi-arrow-right"

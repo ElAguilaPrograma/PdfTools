@@ -15,7 +15,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:1420")
+        policy.WithOrigins(
+            "http://localhost:1420",
+            "tauri://localhost",
+            "https://tauri.localhost",
+            "http://tauri.localhost"
+            )
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials();

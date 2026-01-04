@@ -12,9 +12,13 @@
   "app": {
     "windows": [
       {
-        "title": "pdftoolsuiclient",
-        "width": 800,
-        "height": 600
+        "title": "Pdf Tools",
+        "width": 1100,
+        "height": 615,
+        "minWidth": 400,
+        "minHeight": 300,
+        "hiddenTitle": false,
+        "visible": true
       }
     ],
     "security": {
@@ -31,5 +35,9 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "fs": {},
+    "opener": {}
   }
 }

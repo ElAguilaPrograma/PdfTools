@@ -56,4 +56,33 @@ export class PdfApiService {
             }
         );
     }
+
+    imagesToPdf(formData: FormData) {
+        return this.http.post(
+            `${this.apiUrl}/imagestopdf`,
+            formData, {
+                responseType: "blob"
+            }
+        );
+    }
+
+    imagesToPdfFixed(formData: FormData) {
+        return this.http.post(
+            `${this.apiUrl}/imagestopdffixed`,
+            formData,
+            {
+                responseType: "blob"
+            }
+        );
+    }
+
+    pdfToImage(formData: FormData) {
+        return this.http.post(
+            `${this.apiUrl}/pdftoimage`,
+            formData,
+            {
+                responseType: "blob"
+            }
+        );
+    }
 }

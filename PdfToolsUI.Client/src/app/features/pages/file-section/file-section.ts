@@ -53,11 +53,12 @@ export class FileSection implements OnInit {
   images: IImageItem[] = [];
   pagesToDelete: number[] = [];
   isOrdering: boolean = false;
-  startPage: number = 0;
+  startPage: number = 1;
   endPage: number = 1;
   isExpandingPdf: boolean = false;
   pdfExpandedName: string = "";
   expandedPdfPages: string[] = [];
+  fixedImages: boolean = false;
 
 
   constructor(
@@ -192,6 +193,11 @@ export class FileSection implements OnInit {
         this.loadingService.hide();
       }
     }, 100);
+  }
+
+  // Validations
+  showModalPdfToImage(): boolean {
+    return this.toolId === 5;
   }
 
 }

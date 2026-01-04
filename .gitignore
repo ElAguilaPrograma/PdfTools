@@ -478,3 +478,14 @@ obj/
 /environments
 /.vscode/
 .vscode/
+
+# Backend
+/backend
+/backend/
+backend/
+/bin
+bin/
+
+#config
+.config/
+/.config

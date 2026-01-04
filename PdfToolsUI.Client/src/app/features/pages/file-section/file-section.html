@@ -86,8 +86,8 @@
         [size]="'small'"
         [pdfs]="pdfs"
         [toolId]="toolId"
-        [startPage]="startPage"
-        [endPage]="endPage"
+        [(startPage)]="startPage"
+        [(endPage)]="endPage"
         >
 
         <div class="flex flex-col w-full items-center">
@@ -169,7 +169,8 @@
 <app-modal-windows
     [(visible)]="isExpandingPdf"
     size="pdf"
-    header="{{ pdfExpandedName }}">
+    header="{{ pdfExpandedName }}"
+    [isExpandingPdfWindow]="true">
 
     <div class="flex flex-col items-center gap-4">
         @for (page of expandedPdfPages; track $index) {
@@ -194,7 +195,7 @@
         [(isOrdering)]="isOrdering"
         [size]="'small'"
         [toolId]="toolId"
-        [startPage]="startPage"
+        [(startPage)]="startPage"
         [pdfs]="pdfs">
 
         <div class="flex flex-col w-full items-center">
@@ -234,6 +235,7 @@
         [size]="'large'"
         [images]="images"
         [toolId]="toolId"
+        [(fixedImages)]="fixedImages"
         >
         <div [ngClass]="'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6'" 
             cdkDropList 
@@ -256,6 +258,35 @@
         </div>
     </app-modal-windows>
  }
+
+@if (showModalPdfToImage()) {
+    <app-modal-windows
+        [(visible)]="visible"
+        header="PDF to Images"
+        [multipleFiles]="false"
+        [canOrder]="false"
+        [(isOrdering)]="isOrdering"
+        [size]="'small'"
+        [pdfs]="pdfs"
+        [toolId]="toolId">
+        <div class="flex flex-col w-full items-center">
+            @for (pdf of pdfs; track i; let i = $index) {
+                <div cdkDrag [cdkDragDisabled]="!isOrdering">
+                    <p-card class="brightness-100 hover:brightness-85 transition-all shadow-lg/30 w-full justify-center"
+                        (click)="expandPdf(pdf.file, pdf.file.name)"
+                        pTooltip="Click to expand"
+                        tooltipPosition="top">
+
+                        <img [src]="pdf.thumbnail"/>
+                        <p class="text-center truncate mt-2 px-2">{{ pdf.file.name }}</p>
+
+                    </p-card>
+
+                </div>
+            }
+        </div>
+    </app-modal-windows>
+}
 
 
 

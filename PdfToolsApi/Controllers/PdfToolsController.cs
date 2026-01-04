@@ -116,16 +116,17 @@ namespace PdfToolsApi.Controllers
         {
             var tools = new List<Tools>
             {
-                new Tools { ToolId = 0, Name = "Unir PDFs", Description = "Une dos o mas PDFs", IsActive = true, Route = "/merge" },
-                new Tools { ToolId = 1, Name = "Dividir PDF", Description = "Divide las paginas de un PDF en archivos PDF individuales", IsActive = true, Route = "/split" },
-                new Tools { ToolId = 2, Name = "Borrar PDF", Description = "Elimina paginas de un PDF", IsActive = true, Route = "/delete" },
-                new Tools { ToolId = 3, Name = "Enumerar Paginas", Description = "Enumera las paginas del PDF", IsActive = true, Route = "/enum"},
-                new Tools { ToolId = 4, Name = "Imagen a PDF", Description = "Convierte imagenes a un PDF", IsActive = true, Route = "/image"},
-                new Tools { ToolId = 5, Name = "Pdf a Imagen", Description = "Genera un .Zip con imagenes a patir de un PDF", IsActive = true, Route = "/pdftoimage" }
+                new Tools { ToolId = 0, Name = "Merge PDFs", Description = "Merges two or more PDFs", IsActive = true, Route = "/merge" },
+                new Tools { ToolId = 1, Name = "Split PDF", Description = "Splits the pages of a PDF into individual PDF files", IsActive = true, Route = "/split" },
+                new Tools { ToolId = 2, Name = "Delete PDF Pages", Description = "Deletes pages from a PDF", IsActive = true, Route = "/delete" },
+                new Tools { ToolId = 3, Name = "Number Pages", Description = "Numbers the pages of the PDF", IsActive = true, Route = "/enum" },
+                new Tools { ToolId = 4, Name = "Image to PDF", Description = "Converts images into a PDF", IsActive = true, Route = "/image" },
+                new Tools { ToolId = 5, Name = "PDF to Image", Description = "Generates a .zip file with images extracted from a PDF", IsActive = true, Route = "/pdftoimage" }
             };
 
             return Ok(tools);
         }
+
 
     }
 }
