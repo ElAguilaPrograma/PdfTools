@@ -8,6 +8,16 @@
   "permissions": [
     "core:default",
     {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        {
+          "name": "binaries/PdfToolsApi",
+          "sidecar": true
+        }
+      ]
+    },
+    "shell:allow-kill",
+    {
       "identifier": "opener:allow-open-path",
       "allow": [
         {
