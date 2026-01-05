@@ -7,7 +7,7 @@ fn greet(name: &str) -> String {
 mod tray;
 use std::sync::Mutex;
 use tauri::Manager;
-use tauri_plugin_shell::process::{CommandChild, CommandEvent};
+use tauri_plugin_shell::process::CommandChild;
 use tauri_plugin_shell::ShellExt;
 
 // State to hold the sidecar child process
@@ -16,6 +16,7 @@ struct SidecarState(Mutex<Option<CommandChild>>);
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app = tauri::Builder::default()
+        .plugin(tauri_plugin_autostart::Builder::new().build())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_shell::init())
@@ -26,34 +27,13 @@ pub fn run() {
                 .shell()
                 .sidecar("PdfToolsApi")
                 .expect("Failed to create PdfToolsApi sidecar command");
-            let (mut rx, child) = sidecar
+            let (_, child) = sidecar
                 .spawn()
                 .expect("Failed to spawn PdfToolsApi sidecar");
 
             // Store the child process in state to keep it alive
             let state = app.state::<SidecarState>();
             *state.0.lock().unwrap() = Some(child);
-
-            // Spawn a task to monitor sidecar output for debugging
-            tauri::async_runtime::spawn(async move {
-                while let Some(event) = rx.recv().await {
-                    match event {
-                        CommandEvent::Stdout(line) => {
-                            println!("[PdfToolsApi] {}", String::from_utf8_lossy(&line));
-                        }
-                        CommandEvent::Stderr(line) => {
-                            eprintln!("[PdfToolsApi ERROR] {}", String::from_utf8_lossy(&line));
-                        }
-                        CommandEvent::Terminated(payload) => {
-                            eprintln!(
-                                "[PdfToolsApi] Process terminated with code: {:?}",
-                                payload.code
-                            );
-                        }
-                        _ => {}
-                    }
-                }
-            });
 
             tray::create_tray(app.handle())?;
 
