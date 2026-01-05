@@ -4,10 +4,10 @@
     <p-toast position="bottom-left"/>
     <p-confirmdialog />
 
-    <p-button label="Volver" icon="pi pi-arrow-left" class="fixed" routerLink="/home" routerLinkActive="active"></p-button>
+    <p-button label="Go back" icon="pi pi-arrow-left" class="fixed" routerLink="/home" routerLinkActive="active"></p-button>
     <div class="flex flex-col justify-center items-center space-y-9 w-full">
         <h1 class="text-8xl text-shadow-lg/20"> {{ toolName }}</h1>
-        <h4 class="text-4xl text-shadow-md"> Selecciona tus archivos PDFs para comenzar </h4>
+        <h4 class="text-4xl text-shadow-md"> Select your files to begin </h4>
 
         @if (toolId === 4){
             <input #imageInput
@@ -17,7 +17,7 @@
                 (change)="onImageSelected($event)"
                 hidden />
 
-            <p-button label="Subir Imágenes" 
+            <p-button label="Upload images" 
                 size="large" 
                 icon="pi pi-upload"
                 (onClick)="imageInput.click()" />
@@ -30,7 +30,7 @@
                 (change)="onFileSelected($event)"
                 hidden />
 
-            <p-button label="Subir Archivos" 
+            <p-button label="Upload files" 
                 size="large" 
                 icon="pi pi-upload"
                 (onClick)="fileInput.click()" />

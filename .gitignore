@@ -480,9 +480,9 @@ obj/
 .vscode/
 
 # Backend
-/backend
-/backend/
-backend/
+/binaries
+/binaries/
+binaries/
 /bin
 bin/
 

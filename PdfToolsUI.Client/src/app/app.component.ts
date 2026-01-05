@@ -1,7 +1,7 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
-import { ProgressSpinner } from "primeng/progressspinner";
 import { Loading } from "./shared/components/loading/loading";
+import { enable, isEnabled } from "@tauri-apps/plugin-autostart";
 
 @Component({
   selector: "app-root",
@@ -9,6 +9,14 @@ import { Loading } from "./shared/components/loading/loading";
   templateUrl: "./app.component.html",
   styleUrl: "./app.component.css",
 })
-export class AppComponent {
-
+export class AppComponent implements OnInit {
+  async ngOnInit() {
+    if (await isEnabled()) {
+      console.log("Autostart allowed");
+    } else {
+      console.log("Autostart not allowed");
+      await enable();
+      console.log("Autostart enabled");
+    }
+  }
 }
