@@ -35,10 +35,10 @@ namespace PdfToolsApi.Core.Services
             using var image = XImage.FromStream(inputImage);
 
             // tamaño de la pagina segun el tamaño de la imagen
-            page.Width = image.PixelWidth;
-            page.Height = image.PixelHeight;
+            page.Width = XUnit.FromPoint(image.PixelWidth);
+            page.Height = XUnit.FromPoint(image.PixelHeight);
 
-            gfx.DrawImage(image, 0, 0, image.PixelHeight, image.PixelHeight);
+            gfx.DrawImage(image, 0, 0, image.PixelWidth, image.PixelHeight);
 
             using var stream = new MemoryStream();
             document.Save(stream);
@@ -62,11 +62,11 @@ namespace PdfToolsApi.Core.Services
 
                 using var image = XImage.FromStream(imageStream);
 
-                page.Width = image.PixelWidth;
-                page.Height = image.PixelHeight;
+                page.Width = XUnit.FromPoint(image.PixelWidth);
+                page.Height = XUnit.FromPoint(image.PixelHeight);
 
                 using var gfx = XGraphics.FromPdfPage(page);
-                gfx.DrawImage(image, 0, 0, page.Width, page.Height);
+                gfx.DrawImage(image, 0, 0, page.Width.Point, page.Height.Point);
             }
 
             using var stream = new MemoryStream();
@@ -96,11 +96,11 @@ namespace PdfToolsApi.Core.Services
                 using var gfx = XGraphics.FromPdfPage(page);
                 using var image = XImage.FromStream(imageStream);
 
-                double pageWidth = page.Width;
-                double pageHeight = page.Height;
+                double pageWidth = page.Width.Point;
+                double pageHeight = page.Height.Point;
 
-                double imgWidth = image.Width;
-                double imgHeight = image.Height;
+                double imgWidth = image.PixelWidth;
+                double imgHeight = image.PixelHeight;
 
                 double scaleX = pageWidth / imgWidth;
                 double scaleY = pageHeight / imgHeight;

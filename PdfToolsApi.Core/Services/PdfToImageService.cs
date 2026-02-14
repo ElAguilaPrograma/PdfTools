@@ -1,6 +1,7 @@
-﻿using PdfiumViewer;
-using System.Drawing;
-using System.Drawing.Imaging;
+using Docnet.Core;
+using Docnet.Core.Models;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using System.IO.Compression;
 
 namespace PdfToolsApi.Core.Services
@@ -9,9 +10,11 @@ namespace PdfToolsApi.Core.Services
     {
         byte[] ConvertPdfToImages(Stream pdfStream);
     }
+
     public class PdfToImageService : IPdfToImageService
     {
         private readonly InterfaceIsPdf _validatePdf;
+
         public PdfToImageService(InterfaceIsPdf interfaceIsPdf)
         {
             _validatePdf = interfaceIsPdf;
@@ -26,23 +29,29 @@ namespace PdfToolsApi.Core.Services
                 throw new InvalidDataException("Archivo PDF no valido");
 
             pdfStream.Position = 0;
-
-            using var document = PdfDocument.Load(pdfStream);
+            byte[] pdfBytes;
+            using (var ms = new MemoryStream())
+            {
+                pdfStream.CopyTo(ms);
+                pdfBytes = ms.ToArray();
+            }
 
             using var zipStream = new MemoryStream();
             using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
             {
-                for (int i = 0; i < document.PageCount; i++)
+                using var docReader = DocLib.Instance.GetDocReader(pdfBytes, new PageDimensions(2.0d)); // 2.0d scaling factor for better resolution
+                
+                for (int i = 0; i < docReader.GetPageCount(); i++)
                 {
-                    using var image = document.Render(
-                        i,
-                        300,
-                        300,
-                        PdfRenderFlags.Annotations
-                        );
+                    using var pageReader = docReader.GetPageReader(i);
+                    var rawBytes = pageReader.GetImage(); // BGRA
+                    var width = pageReader.GetPageWidth();
+                    var height = pageReader.GetPageHeight();
 
+                    using var image = Image.LoadPixelData<Bgra32>(rawBytes, width, height);
+                    
                     using var imageStream = new MemoryStream();
-                    image.Save(imageStream, ImageFormat.Png);
+                    image.SaveAsPng(imageStream);
 
                     var entry = archive.CreateEntry($"page_{i + 1}.png");
                     using var entryStream = entry.Open();

@@ -44,8 +44,8 @@ namespace PdfToolsApi.Core.Services
                     var size = gfx.MeasureString(text, font);
 
                     // Posición
-                    double x = (page.Width - size.Width - 35);
-                    double y = page.Height - 35;
+                    double x = (page.Width.Point - size.Width - 35);
+                    double y = page.Height.Point - 35;
 
                     gfx.DrawString(text, font, XBrushes.Black, new XPoint(x, y));
                 }
